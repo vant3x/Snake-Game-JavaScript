@@ -1,0 +1,7 @@
+body {
+  text-align: center;
+  font-family:sans-serif;
+}
+canvas {
+  border: solid 2px #000;
+}
