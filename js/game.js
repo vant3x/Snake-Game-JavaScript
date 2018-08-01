@@ -69,8 +69,26 @@
       this.copy()
       this.y += 10
       }
-    }
+      hit(head,segundo=false) {
+        if(this === head && !this.hasBack()) return false
+        if(this === head) return this.back.hit(head,true)
 
+        if(segundo && !this.hasBack()) return false
+        if(segundo) return this.back.hit(head)
+
+        // No es ni la cabeza ni el segundo
+        if(this.hasBack()) {
+          return squareHit(this,head) ||  this.back.hit(head)
+        }
+
+        // No es la cabeza, ni el segundo, y soy el último
+        return squareHit(this,head)
+      }
+
+      hitBorder() {
+        return (this.x > 550 || this.x < 0 || this.y > 345 || this.y < 0)
+      }
+    }
 
   class Snake {
     constructor() {
@@ -88,18 +106,22 @@
     }
 
     right() {
+      if(this.direction === "left") return;
       this.direction = "right"
     }
 
     left() {
+      if(this.direction === "right") return;
       this.direction = "left"
     }
 
     up() {
+      if(this.direction === "down") return;
       this.direction = "up"
     }
 
     down() {
+      if(this.direction === "up") return;
       this.direction = "down"
     }
     move() {
@@ -111,6 +133,10 @@
 
     eat() {
       this.head.add()
+    }
+
+    dead() {
+      return this.head.hit(this.head) || this.head.hitBorder()
     }
   }
 
@@ -130,11 +156,17 @@
     return false;
   })
 
-  setInterval(function(){
+  const animacion = setInterval(function(){
     snake.move()
     ctx.clearRect(0,0,canvas.width,canvas.height)
     snake.draw()
     drawFood()
+
+    if(snake.dead()) {
+      console.log("Se acabo")
+      alert("Has perdido :(")
+      window.clearInterval(animacion)
+    }
   },1000 / 7)
 
   setInterval(function() {
@@ -142,7 +174,7 @@
     foods.push(food)
 
     setTimeout(function() {
-      // Delete food
+      // Eliminar comida cada 10 segundos
       removeFromFoods(food)
     },10000)
   },4000)
@@ -165,6 +197,10 @@
     foods = foods.filter(function(f) {
       return food !== f
     })
+  }
+
+  function squareHit(cuadrado_uno,cuadrado_dos) {
+    return cuadrado_uno.x == cuadrado_dos.x && cuadrado_uno.y == cuadrado_dos.y
   }
 
   function hit(a,b) {
